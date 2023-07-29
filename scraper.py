@@ -24,12 +24,10 @@ async def scrape_search() -> List[dict]:
         # scrape first page for total number of pages
         response_first_page = await session.post(search_url, json=getSearchData())
         data_first_page = response_first_page.json()["results"][0]
-        print(json.dumps(data_first_page, indent=1))
+#        print(json.dumps(data_first_page, indent=1))
 
         results = data_first_page["hits"]
         total_pages = data_first_page["nbPages"]
-
-        return results
 
         # scrape remaining pages concurrently
         other_pages = [ session.post(search_url, json=getSearchData(i)) for i in range(2, total_pages + 1) ]
@@ -48,10 +46,9 @@ def getLessThanDollar(results,dollar,file=sys.stdout):
     for r in results:
         if r["current_bid"] <= dollar:
             count = count + 1
-            epoch = datetime.strptime(r["expected_close_date"],'%y-%m-%d')
-            bestItems[r["retail_price"] + count / 100000] = r
+            bestItems[r["expected_closing_utc"] + count / 100000] = r
 
-    for r in sorted(bestItems.keys(),reverse=True):
+    for r in sorted(bestItems.keys(),reverse=False):
         printResult(bestItems[r],file)
 
 def getMoreThanPercent(results,percent,file=sys.stdout):
@@ -61,9 +58,9 @@ def getMoreThanPercent(results,percent,file=sys.stdout):
     for r in results:
         if r["discount_percentage"] >= percent:
             count = count + 1
-            bestItems[r["retail_price"] + count / 100000] = r
+            bestItems[r["expected_closing_utc"] + count / 100000] = r
 
-    for r in sorted(bestItems.keys(),reverse=True):
+    for r in sorted(bestItems.keys(),reverse=False):
         printResult(bestItems[r],file)
 
 if __name__ == "__main__":

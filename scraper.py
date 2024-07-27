@@ -42,23 +42,19 @@ def printResult(r,file=sys.stdout):
 def getLessThanDollar(results,dollar,file=sys.stdout):
     print (f'Less than ${dollar}',file=file,end="\r\n")
     bestItems={}
-    count=0
     for r in results:
         if r["current_bid"] <= dollar:
-            count = count + 1
-            bestItems[r["expected_closing_utc"] + count / 100000] = r
+            bestItems[100 * int(r["expected_closing_utc"] / 100) - r["retail_price"] / 1000000] = r
 
     for r in sorted(bestItems.keys(),reverse=False):
         printResult(bestItems[r],file)
 
 def getMoreThanPercent(results,percent,file=sys.stdout):
     bestItems={}
-    count=0
     print (f'Less than {percent}%',file=file,end="\r\n")
     for r in results:
         if r["discount_percentage"] >= percent:
-            count = count + 1
-            bestItems[r["expected_closing_utc"] + count / 100000] = r
+            bestItems[100 * int(r["expected_closing_utc"] / 100) - r["retail_price"] / 100000] = r
 
     for r in sorted(bestItems.keys(),reverse=False):
         printResult(bestItems[r],file)
